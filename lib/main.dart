@@ -77,7 +77,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
       type: FileType.video,
     );
     if (result != null) {
-      await player.open(Media(result.files.single.path!));
+      // Force play: true just in case
+      await player.open(Media(result.files.single.path!), play: true);
       setState(() {
         currentFileName = result.files.single.name;
       });
@@ -119,19 +120,17 @@ class _PlayerScreenState extends State<PlayerScreen> {
             icon: const Icon(FluentIcons.video),
             title: const Text("Now Playing"),
             body: Center(
-              child: player.state.width == null
-                  // 1. If no video is loaded, show the button
+              // CHANGED: Use currentFileName instead of width.
+              // This ensures the player appears immediately after picking a file.
+              child: currentFileName == null
                   ? Button(
                       onPressed: pickVideo,
                       child: const Text("Open Video File"),
                     )
-                  // 2. If video IS loaded, show the video player
-                  // We removed the "MaterialDesktopVideoControlsTheme" wrapper
-                  // The default Video widget automatically picks the right UI for Windows
                   : Video(
                       controller: controller,
-                      // If you find the controls too small or want to force the Desktop look:
-                      controls: MaterialDesktopVideoControls,
+                      controls:
+                          MaterialDesktopVideoControls, // Ensures standard UI
                     ),
             ),
           ),
